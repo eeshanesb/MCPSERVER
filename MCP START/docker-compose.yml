@@ -1,0 +1,30 @@
+﻿services:
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config:/etc/searxng
+      - ./data:/var/cache/searxng
+
+  searxng-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: searxng-mcp
+    restart: unless-stopped
+    ports:
+      - "8081:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - TRANSPORT=sse
+      - AUTH_TYPE=none
+      - EUNOMIA_TYPE=none
+      - SEARXNG_URL=http://searxng:8080
+      - SEARXNG_INSTANCE_URL=http://searxng:8080
+      - USE_RANDOM_INSTANCE=false
+    depends_on:
+      - searxng
